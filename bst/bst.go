@@ -154,7 +154,7 @@ type (
 	}
 )
 
-// NewKeyless constructs a *Keyless[Key, Value] with a key generating function out of values.
+// NewKeyless constructs a *Keyless[Key, Value] with a key generating function for ordering.
 func NewKeyless[K cmp.Ordered, V any](generateKey KeyFunc[K, V]) *Keyless[K, V] {
 	return &Keyless[K, V]{
 		bst:     New[K, V](),
