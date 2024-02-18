@@ -57,41 +57,42 @@ func TestBst_Remove(t *testing.T) {
 	}
 }
 
-func BenchmarkSlice_Add(b *testing.B) {
-	var nums = make([]int, b.N)
+func BenchmarkBst_PutRandom(b *testing.B) {
+	arr := make([]int, b.N)
 	for i := 0; i < b.N; i++ {
-		nums[i] = rand.Int()
+		arr[i] = rand.Int()
 	}
-}
 
-func BenchmarkBst_Add(b *testing.B) {
+	b.ResetTimer()
 	bst := New[int, int]()
 	for i := 0; i < b.N; i++ {
-		bst.Put(rand.Int(), i)
+		bst.Put(arr[i], i)
 	}
 }
 
-func BenchmarkKeyless_Add(b *testing.B) {
+func BenchmarkBst_PutSequence(b *testing.B) {
+	bst := New[int, int]()
+	for i := 0; i < b.N; i++ {
+		bst.Put(i, i)
+	}
+}
+
+func BenchmarkKeyless_Put(b *testing.B) {
 	bst := NewKeyless(func(i int) int { return i })
 	for i := 0; i < b.N; i++ {
 		bst.Put(rand.Int())
 	}
 }
 
-func BenchmarkSlice_Remove(b *testing.B) {
-	var nums = make([]int, b.N)
+func BenchmarkBst_Contains(b *testing.B) {
+	bst := New[int, int]()
 	for i := 0; i < b.N; i++ {
-		nums[i] = rand.Int()
+		bst.Put(rand.Int(), i)
 	}
-	cont := slices.Clone(nums)
-	rand.Shuffle(b.N, func(i, j int) {
-		cont[i], cont[j] = cont[j], cont[i]
-	})
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		i := slices.Index(nums, cont[i])
-		nums = append(nums[:i], nums[i+1:]...)
+		bst.Contains(i)
 	}
 }
 
