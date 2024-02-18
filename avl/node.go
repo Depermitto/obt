@@ -2,6 +2,7 @@ package avl
 
 import (
 	"cmp"
+	"fmt"
 )
 
 const (
@@ -29,6 +30,10 @@ func (n *node[K, V]) getHeight() int {
 	return n.height
 }
 
+func (n *node[K, V]) fixHeight() {
+	n.height = 1 + max(n.left.getHeight(), n.right.getHeight())
+}
+
 // getBalance is a safe balance factor getter, on nil caller returns 0.
 func (n *node[K, V]) getBalance() int {
 	if n == nil {
@@ -37,20 +42,47 @@ func (n *node[K, V]) getBalance() int {
 	return n.right.getHeight() - n.left.getHeight()
 }
 
-func (n *node[K, V]) put(key K, value V) (*node[K, V], bool) {
+func (n *node[K, V]) put(key K, value V) (newRoot *node[K, V], put bool) {
 	switch {
 	case n == nil:
 		return newLeaf(key, value), true
 	case key < n.key:
-		n.left, _ = n.left.put(key, value)
+		n.left, put = n.left.put(key, value)
 	case key > n.key:
-		n.right, _ = n.right.put(key, value)
+		n.right, put = n.right.put(key, value)
 	default:
 		return nil, false
 	}
-	n.height = 1 + max(n.left.getHeight(), n.right.getHeight())
+	n.fixHeight()
 	n.rebalance()
-	return n, true
+	return n, put
+}
+
+func (n *node[K, V]) delete(key K) (newRoot *node[K, V], deleted bool) {
+	switch {
+	case n == nil:
+		return nil, false
+	case key < n.key:
+		n.left, deleted = n.left.delete(key)
+	case key > n.key:
+		n.right, deleted = n.right.delete(key)
+	// key found
+	case n.left == nil:
+		return n.right, true
+	case n.right == nil:
+		return n.left, true
+	default:
+		var t *node[K, V] = n.left
+		for t.right != nil {
+			t = t.right
+		}
+
+		n.key, n.value = t.key, t.value
+		n.left, deleted = n.left.delete(t.key)
+	}
+	n.fixHeight()
+	n.rebalance()
+	return n, deleted
 }
 
 func (n *node[K, V]) rebalance() {
@@ -78,10 +110,9 @@ func (n *node[K, V]) leftRot() {
 	n.left.right = dangling
 
 	// old root balance
-	n.left.height = 1 + max(n.left.left.getHeight(), n.left.right.getHeight())
-
+	n.left.fixHeight()
 	// new root balance
-	n.height = 1 + max(n.left.getHeight(), n.right.getHeight())
+	n.fixHeight()
 }
 
 func (n *node[K, V]) rightRot() {
@@ -94,8 +125,19 @@ func (n *node[K, V]) rightRot() {
 	n.right.left = dangling
 
 	// old root balance
-	n.right.height = 1 + max(n.right.left.getHeight(), n.right.right.getHeight())
-
+	n.right.fixHeight()
 	// new root balance
-	n.height = 1 + max(n.left.getHeight(), n.right.getHeight())
+	n.fixHeight()
+}
+
+func (n *node[K, V]) String() (inOrder string) {
+	if n.left != nil {
+		inOrder += n.left.String()
+	}
+	inOrder += fmt.Sprintf("%v ", n.value)
+
+	if n.right != nil {
+		inOrder += n.right.String()
+	}
+	return inOrder
 }
