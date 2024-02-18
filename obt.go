@@ -8,7 +8,7 @@ import "cmp"
 // for Binary Search Tree, which is the simplest implementation  of this
 // interface and some self-balancing Obts. All Obts are functionally Set-like.
 //
-// Obt and KeylessObt are designed to be mutually exclusive, you either implement
+// Obt and Keyless are designed to be mutually exclusive, you either implement
 // one or the other.
 type Obt[K cmp.Ordered, V any] interface {
 	// Put inserts a key-value pair into the Obt.
@@ -26,50 +26,50 @@ type Obt[K cmp.Ordered, V any] interface {
 	Len() int
 }
 
-// KeylessObt is a no-key version of Obt. The name may be misleading, as
-// most implementations may still need to allocate for keys. The name KeylessObt
+// Keyless is a no-key version of Obt. The name may be misleading, as
+// most implementations may still need to allocate for keys. The name Keyless
 // comes from generating key-value pairs based on values (usually). See bst.Keyless
 // for the simplest implementation.
-type KeylessObt[V any] interface {
-	// Put inserts a value (or a generated key-value pair) into the KeylessObt.
+type Keyless[V any] interface {
+	// Put inserts a value (or a generated key-value pair) into the Keyless.
 	// Put must return true if the value has been added.
 	Put(V) (added bool)
 
-	// Delete removes the value (or a generated key-value pair) from the KeylessObt.
+	// Delete removes the value (or a generated key-value pair) from the Keyless.
 	// Delete must return true if the value has been deleted.
 	Delete(V) (removed bool)
 
 	// Contains is like Obt.Contains but checks for values or generated keys.
 	Contains(V) bool
 
-	// Len returns the amount of elements in the KeylessObt.
+	// Len returns the amount of elements in the Keyless.
 	Len() int
 }
 
-// PutMany is a convenience function for putting multiple values into a KeylessObt.
+// PutMany is a convenience function for putting multiple values into a Keyless.
 // Ignores any errors that occured. The complexity is O(k log n) where k is the
-// number of values to put, and n is the KeylessObt.Len of the tree.
-func PutMany[V any](obt KeylessObt[V], value ...V) {
+// number of values to put, and n is the Keyless.Len of the tree.
+func PutMany[V any](obt Keyless[V], value ...V) {
 	for _, v := range value {
 		obt.Put(v)
 	}
 }
 
 // DeleteMany is like PutMany but for deletion.
-func DeleteMany[V any](obt KeylessObt[V], value ...V) {
+func DeleteMany[V any](obt Keyless[V], value ...V) {
 	for _, v := range value {
 		obt.Delete(v)
 	}
 }
 
 // ContainsAny is a convenience function for checking if any of multiple values
-// is contained in KeylessObt. The complexity is O(k log n) where k is the number
-// of values to check, and n is the KeylessObt.Len of the tree. This could technically
+// is contained in Keyless. The complexity is O(k log n) where k is the number
+// of values to check, and n is the Keyless.Len of the tree. This could technically
 // be achieved in O(n) time, however for a couple of values, O(k log n) would be
 // much faster.
 //
 // If you need to check every value iterate over the tree!
-func ContainsAny[V any](obt KeylessObt[V], value ...V) bool {
+func ContainsAny[V any](obt Keyless[V], value ...V) bool {
 	for _, v := range value {
 		if obt.Contains(v) {
 			return true
@@ -78,8 +78,8 @@ func ContainsAny[V any](obt KeylessObt[V], value ...V) bool {
 	return false
 }
 
-// ContainsAll is like ContainsAny, but checks if every value is contained in KeylessObt.
-func ContainsAll[V any](obt KeylessObt[V], value ...V) bool {
+// ContainsAll is like ContainsAny, but checks if every value is contained in Keyless.
+func ContainsAll[V any](obt Keyless[V], value ...V) bool {
 	for _, v := range value {
 		if !obt.Contains(v) {
 			return false
