@@ -77,59 +77,72 @@ func BenchmarkBst_PutSequence(b *testing.B) {
 	}
 }
 
-func BenchmarkKeyless_Put(b *testing.B) {
-	bst := NewKeyless(func(i int) int { return i })
-	for i := 0; i < b.N; i++ {
-		bst.Put(rand.Int())
-	}
-}
-
-func BenchmarkBst_Contains(b *testing.B) {
+func BenchmarkBst_ContainsRandom(b *testing.B) {
+	arr := make([]int, b.N)
 	bst := New[int, int]()
-	for i := 0; i < b.N; i++ {
-		bst.Put(rand.Int(), i)
-	}
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		bst.Contains(i)
-	}
-}
-
-func BenchmarkBst_Delete(b *testing.B) {
-	var (
-		bst  = New[int, int]()
-		nums = make([]int, b.N)
-	)
 	for i := 0; i < b.N; i++ {
 		key := rand.Int()
 		bst.Put(key, i)
-		nums[i] = key
+		arr[i] = key
 	}
 	rand.Shuffle(b.N, func(i, j int) {
-		nums[i], nums[j] = nums[j], nums[i]
+		arr[i], arr[j] = arr[j], arr[i]
 	})
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		bst.Delete(nums[i])
+		bst.Contains(arr[i])
 	}
 }
 
-func BenchmarkKeyless_Delete(b *testing.B) {
-	bst := NewKeyless(func(i int) int { return i })
-	nums := make([]int, b.N)
-
+func BenchmarkBst_ContainsSequence(b *testing.B) {
+	arr := make([]int, b.N)
+	bst := New[int, int]()
 	for i := 0; i < b.N; i++ {
-		nums[i] = rand.Int()
-		bst.Put(nums[i])
+		bst.Put(i, i)
+		arr[i] = i
 	}
 	rand.Shuffle(b.N, func(i, j int) {
-		nums[i], nums[j] = nums[j], nums[i]
+		arr[i], arr[j] = arr[j], arr[i]
 	})
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		bst.Delete(nums[i])
+		bst.Contains(arr[i])
+	}
+}
+
+func BenchmarkBst_DeleteRandom(b *testing.B) {
+	arr := make([]int, b.N)
+	bst := New[int, int]()
+	for i := 0; i < b.N; i++ {
+		key := rand.Int()
+		bst.Put(key, i)
+		arr[i] = key
+	}
+	rand.Shuffle(b.N, func(i, j int) {
+		arr[i], arr[j] = arr[j], arr[i]
+	})
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		bst.Delete(arr[i])
+	}
+}
+
+func BenchmarkBst_DeleteSequence(b *testing.B) {
+	arr := make([]int, b.N)
+	bst := New[int, int]()
+	for i := 0; i < b.N; i++ {
+		bst.Put(i, i)
+		arr[i] = i
+	}
+	rand.Shuffle(b.N, func(i, j int) {
+		arr[i], arr[j] = arr[j], arr[i]
+	})
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		bst.Delete(arr[i])
 	}
 }

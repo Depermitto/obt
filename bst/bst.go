@@ -5,6 +5,7 @@ package bst
 import (
 	"cmp"
 	"fmt"
+	"strings"
 )
 
 type (
@@ -109,27 +110,6 @@ func (bst *Bst[K, V]) Delete(key K) (removed bool) {
 	return true
 }
 
-// String implements fmt.Stringer by showing the tree in
-// [(key1:value1)(key2:value2)...(keyN:valueN)] format.
-func (bst *Bst[K, V]) String() (inOrder string) {
-	if bst.root == nil {
-		return "[]"
-	}
-	return fmt.Sprintf("[%v]", bst.root)
-}
-
-func (n *node[K, V]) String() (inOrder string) {
-	if n.left != nil {
-		inOrder += n.left.String()
-	}
-	inOrder += fmt.Sprintf("(%v:%v)", n.key, n.value)
-
-	if n.right != nil {
-		inOrder += n.right.String()
-	}
-	return inOrder
-}
-
 // Len implements obt.Obt.Len.
 func (bst *Bst[K, V]) Len() int {
 	return bst.len
@@ -141,13 +121,34 @@ func (bst *Bst[K, V]) Contains(key K) bool {
 	return n != nil
 }
 
+// String implements fmt.Stringer by showing the tree in a slice format,
+// ignoring keys.
+func (bst *Bst[K, V]) String() (inOrder string) {
+	if bst.root == nil {
+		return "[]"
+	}
+	return "[" + strings.TrimSpace(bst.root.String()) + "]"
+}
+
+func (n *node[K, V]) String() (inOrder string) {
+	if n.left != nil {
+		inOrder += n.left.String()
+	}
+	inOrder += fmt.Sprintf("%v ", n.value)
+
+	if n.right != nil {
+		inOrder += n.right.String()
+	}
+	return inOrder
+}
+
 type (
 	// KeyFunc is a key generating function signature for Bst variants with no explicit keys.
 	KeyFunc[K cmp.Ordered, V any] func(V) K
 
 	// Keyless is essentially a wrapper over a normal Bst with user-provided key generation
 	// out of inserted values. The overhead is miniscule (~15-20 nanoseconds more per op
-	// in comparison to the ordinary Bst).
+	// in comparison to the ordinary variant).
 	Keyless[K cmp.Ordered, V any] struct {
 		bst     *Bst[K, V]
 		keyFunc KeyFunc[K, V]
@@ -182,8 +183,8 @@ func (k *Keyless[K, V]) Len() int {
 	return k.bst.Len()
 }
 
-// String implements fmt.Stringer by showing the tree in
-// [(key1:value1)(key2:value2)...(keyN:valueN)] format.
+// String implements fmt.Stringer by showing the tree in a slice format,
+// ignoring keys.
 func (k *Keyless[K, V]) String() string {
 	return k.bst.String()
 }
