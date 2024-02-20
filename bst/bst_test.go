@@ -20,14 +20,13 @@ func TestNew(t *testing.T) {
 
 func TestBst_Put(t *testing.T) {
 	bst := New[int, int]()
-	repr := "["
+	var repr []int
 	for i := 0; i < 100; i++ {
 		bst.Put(i, i)
-		repr += fmt.Sprintf("(%v:%v)", i, i)
+		repr = append(repr, i)
 	}
-	repr += "]"
 
-	if bst.String() != repr {
+	if bst.String() != fmt.Sprint(repr) {
 		t.Errorf("expected %v; got %v", repr, bst.String())
 	}
 }
