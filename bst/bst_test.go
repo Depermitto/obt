@@ -2,7 +2,7 @@ package bst
 
 import (
 	"fmt"
-	"math/rand"
+	"math/rand/v2"
 	"slices"
 	"testing"
 )
@@ -35,7 +35,7 @@ func TestBst_Remove(t *testing.T) {
 	bst := New[int, int]()
 	var nums []int
 	for i := 0; i < 100; i++ {
-		key := rand.Intn(1000)
+		key := rand.IntN(1000)
 		bst.Put(key, i)
 		nums = append(nums, key)
 	}

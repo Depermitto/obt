@@ -18,6 +18,14 @@ type node[K cmp.Ordered, V any] struct {
 	height int
 }
 
+func newLeaf[K cmp.Ordered, V any](key K, value V) *node[K, V] {
+	return &node[K, V]{
+		key:    key,
+		value:  value,
+		height: 1,
+	}
+}
+
 // getHeight is a safe height getter, on nil caller returns 0.
 func (n *node[K, V]) getHeight() int {
 	if n == nil {
@@ -41,13 +49,13 @@ func (n *node[K, V]) getBalance() int {
 func (n *node[K, V]) put(key K, value V) (newRoot *node[K, V], put bool) {
 	switch {
 	case n == nil:
-		return &node[K, V]{key: key, value: value, height: 1}, true
+		return newLeaf(key, value), true
 	case key < n.key:
 		n.left, put = n.left.put(key, value)
 	case key > n.key:
 		n.right, put = n.right.put(key, value)
 	default:
-		return n, false
+		return nil, false
 	}
 	n.fixHeight()
 	n.rebalance()

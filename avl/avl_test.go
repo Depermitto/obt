@@ -1,7 +1,7 @@
 package avl
 
 import (
-	"math/rand"
+	"math/rand/v2"
 	"testing"
 )
 
